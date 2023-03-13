@@ -81,4 +81,12 @@ RUN --mount=type=bind,from=builder,source=/output/s6-overlay-noarch.tar.xz,targe
 	test -z "${S6_OVERLAY_SYMLINKS}" || tar -Jxpf /s6-overlay-symlinks-arch.tar.xz; \
 	test -z "${SYSLOGD_OVERLAY}" || tar -Jxpf /syslogd-overlay-noarch.tar.xz
 
+ENV PATH="/command:$PATH"
+ENV PS1="$(whoami)@$(hostname):$(pwd)\\$ "
+ENV HOME="/root"
+ENV TERM="xterm"
+ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME="0"
+ENV S6_VERBOSITY="1"
+
 ENTRYPOINT ["/init"]
+CMD ["with-contenv", "/bin/sh"]

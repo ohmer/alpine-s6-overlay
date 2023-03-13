@@ -19,10 +19,10 @@ variable "SYSLOGD_OVERLAY" {
 }
 
 group "default" {
-  targets = ["alpine-base"]
+  targets = ["docker", "all"]
 }
 
-target "alpine-base" {
+target "build" {
   args = {
     ALPINE_VERSION      = ALPINE_VERSION
     S6_OVERLAY_GIT_URI  = S6_OVERLAY_GIT_URI
@@ -31,7 +31,16 @@ target "alpine-base" {
     SYSLOGD_OVERLAY     = SYSLOGD_OVERLAY
   }
 
-  output = ["type=local,dest=output"]
+  output = ["type=cacheonly"]
+}
+
+target "docker" {
+  inherits = ["build"]
+  output   = ["type=docker,name=ohmer/alpine-s6-overlay"]
+}
+
+target "all" {
+  inherits = ["build"]
 
   platforms = [
     "linux/386",
