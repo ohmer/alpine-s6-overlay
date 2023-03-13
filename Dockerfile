@@ -1,6 +1,6 @@
-# syntax=docker/dockerfile:1.4
+# syntax=docker/dockerfile:1
 
-ARG ALPINE_VERSION
+ARG ALPINE_VERSION=latest
 
 # https://github.com/just-containers/s6-overlay#which-architecture-to-use-depending-on-your-targetarch
 FROM alpine:${ALPINE_VERSION} AS builder-amd64
@@ -36,15 +36,15 @@ FROM builder-${TARGETARCH}${TARGETVARIANT} AS builder
 
 ARG TARGETARCH
 ARG TARGETVARIANT
-ARG S6_OVERLAY_GIT_TAG
-ARG S6_OVERLAY_GIT_URI
+ARG S6_OVERLAY_GIT_REF=master
+ARG S6_OVERLAY_GIT_URI=https://github.com/just-containers/s6-overlay.git
 
 # hadolint ignore=DL3003,DL3018,SC2086
 RUN --mount=type=cache,target=/var/cache/apk,sharing=locked,id=var-cache-apk-${TARGETARCH}${TARGETVARIANT} \
 	set -eux; \
 	apk add --update-cache --virtual builder binutils curl git make tar xz; \
 	\
-	git -c advice.detachedHead=false clone --depth 1 --branch "${S6_OVERLAY_GIT_TAG}" "${S6_OVERLAY_GIT_URI}" /work; \
+	git -c advice.detachedHead=false clone --depth 1 --branch "${S6_OVERLAY_GIT_REF}" "${S6_OVERLAY_GIT_URI}" /work; \
 	make -C /work ARCH="${MAKE_ARCH}" DL_CMD="curl -fsSLO"; \
 	\
 	mkdir /output; \
@@ -64,8 +64,8 @@ RUN --mount=type=cache,target=/var/cache/apk,sharing=locked,id=var-cache-apk-${T
 
 FROM alpine:${ALPINE_VERSION} AS alpine-s6-overlay
 
-ARG S6_OVERLAY_SYMLINKS
-ARG SYSLOGD_OVERLAY
+ARG S6_OVERLAY_SYMLINKS=""
+ARG SYSLOGD_OVERLAY=""
 
 WORKDIR /
 RUN --mount=type=bind,from=builder,source=/output/s6-overlay-noarch.tar.xz,target=/s6-overlay-noarch.tar.xz \

@@ -1,6 +1,5 @@
-bake:
+default:
 	docker buildx bake
 
-docker:
-	docker buildx bake docker
-
+all:
+	docker buildx bake all

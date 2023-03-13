@@ -1,46 +1,37 @@
 variable "ALPINE_VERSION" {
-  default = "latest"
+  default = null
 }
 
 variable "S6_OVERLAY_GIT_URI" {
-  default = "https://github.com/just-containers/s6-overlay.git"
+  default = null
 }
 
-variable "S6_OVERLAY_GIT_TAG" {
-  default = "master"
+variable "S6_OVERLAY_GIT_REF" {
+  default = null
 }
 
 variable "S6_OVERLAY_SYMLINKS" {
-  default = ""
+  default = null
 }
 
 variable "SYSLOGD_OVERLAY" {
-  default = ""
+  default = null
 }
 
-group "default" {
-  targets = ["docker", "all"]
-}
-
-target "build" {
+target "default" {
   args = {
     ALPINE_VERSION      = ALPINE_VERSION
     S6_OVERLAY_GIT_URI  = S6_OVERLAY_GIT_URI
-    S6_OVERLAY_GIT_TAG  = S6_OVERLAY_GIT_TAG
+    S6_OVERLAY_GIT_REF  = S6_OVERLAY_GIT_REF
     S6_OVERLAY_SYMLINKS = S6_OVERLAY_SYMLINKS
     SYSLOGD_OVERLAY     = SYSLOGD_OVERLAY
   }
 
-  output = ["type=cacheonly"]
-}
-
-target "docker" {
-  inherits = ["build"]
-  output   = ["type=docker,name=ohmer/alpine-s6-overlay"]
+  output = ["type=docker,name=ohmer/alpine-s6-overlay"]
 }
 
 target "all" {
-  inherits = ["build"]
+  inherits = ["default"]
 
   platforms = [
     "linux/386",
